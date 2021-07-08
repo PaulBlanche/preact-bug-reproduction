@@ -1,0 +1,17 @@
+{
+  "name": "bug-preact",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "preact": "^10.5.14",
+    "preact-render-to-string": "^5.1.19",
+    "preact-ssr-prepass": "^1.1.3",
+    "react-promise-suspense": "^0.3.3",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
+  },
+  "scripts": {
+    "test": "node -r ts-node/register index.tsx"
+  }
+}
