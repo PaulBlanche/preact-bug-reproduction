@@ -8,43 +8,53 @@ const context = preact.createContext({ value: "value" });
 
 const Provider = context.Provider
 
-Promise.all([
-  render(1, content(1), { value: String(1) }), 
-  render(2, content(2), { value: String(2) }), 
-]).then(console.log);
+run().then(console.log)
 
-async function render(id: number, content: preact.ComponentChildren, value: { value:string }) {
-  const element = <Provider value={value}>
-      {content}
+async function run() {
+  //await sequential() // ok
+  await parallel() // not ok
+}
+
+async function sequential() {
+  const res1 = await render(1)
+  const res2 = await render(2) 
+  console.log([res1, res2])
+}
+
+async function parallel() {
+  const res = await Promise.all([
+    render(1), 
+    render(2), 
+  ])
+  console.log(res)
+}
+
+async function render(id: number) {
+  const element = <Provider value={{ value: 'foo' }}>
+      <Item id={id}/>
   </Provider>
 
-  await ssrPrepass(element);
+  console.log('before prepass', id)
+  await ssrPrepass(element)
+  console.log('after prepass', id)
 
-  const string = renderToString(element);
+  console.log('before render', id)
+  const string = renderToString(element)
+  console.log('after render', id)
 
   return string;
 }
 
-function content(id: number) {
-  return (
-    <div>
-      <Item id={id} />
-    </div>
-  );
-}
-
 function Item({ id }: {id: number }) {
-  const value = useLongAsync(id);
-  return <div>{value}</div>;
+  const value = usePromiseAndContext(id)
+  return <>{value}</>
 }
 
-function useLongAsync(id: number) {
-  const contextValue = hooks.useContext(context);
-
+function usePromiseAndContext(id: number) {
+  const contextValue = hooks.useContext(context)
 
   return usePromise(async () => {
-    const wait = 1000 * 10 * Math.random();
-    await new Promise((res, rej) => setTimeout(res, wait));
-    return contextValue.value;
+    await new Promise((res, rej) => setTimeout(res))
+    return contextValue.value
   }, [id]);
 }
